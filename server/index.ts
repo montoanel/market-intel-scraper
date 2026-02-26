@@ -25,8 +25,18 @@ app.get('/api/top-trends', async (req, res) => {
 
         const page = await context.newPage();
 
+        // Interceptador para economizar RAM e tempo
+        await page.route('**/*', (route) => {
+            const resourceType = route.request().resourceType();
+            // Bloqueia tudo o que não for documento (HTML), script essencial ou fetch
+            if (['image', 'stylesheet', 'font', 'media', 'other'].includes(resourceType)) {
+                return route.abort();
+            }
+            return route.continue();
+        });
+
         // Navegar para a página oficial de tendências
-        await page.goto('https://tendencias.mercadolivre.com.br/');
+        await page.goto('https://tendencias.mercadolivre.com.br/', { waitUntil: 'domcontentloaded', timeout: 60000 });
         console.log('[Scraper Backend] Acessando URL:', page.url());
 
         // Extração super filtrada: pega apenas links de busca reais
@@ -80,10 +90,20 @@ app.get('/api/products', async (req, res) => {
 
         const page = await context.newPage();
 
+        // Interceptador para economizar RAM e tempo
+        await page.route('**/*', (route) => {
+            const resourceType = route.request().resourceType();
+            // Bloqueia tudo o que não for documento (HTML), script essencial ou fetch
+            if (['image', 'stylesheet', 'font', 'media', 'other'].includes(resourceType)) {
+                return route.abort();
+            }
+            return route.continue();
+        });
+
         const searchQuery = encodeURIComponent(keyword);
         console.log(`[Scraper] Iniciando busca aprofundada para o nicho: ${keyword}`);
 
-        await page.goto(`https://lista.mercadolivre.com.br/${searchQuery}`);
+        await page.goto(`https://lista.mercadolivre.com.br/${searchQuery}`, { waitUntil: 'domcontentloaded', timeout: 60000 });
         console.log('[Scraper Backend] Acessando URL de Produtos:', page.url());
 
         // Faz um scroll rápido para carregar imagens escondidas (lazy load)
