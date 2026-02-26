@@ -12,13 +12,18 @@ app.get('/api/top-trends', async (req, res) => {
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage'
+                '--disable-dev-shm-usage',
+                '--disable-blink-features=AutomationControlled' // Flag Mágica: Esconde que é automação
             ]
         });
-        const page = await browser.newPage();
 
-        // Vamos mascarar o robô fingindo ser um usuário comum
-        await page.setExtraHTTPHeaders({ 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' });
+        // Criamos um contexto blindado imitando um humano real no Windows
+        const context = await browser.newContext({
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            viewport: { width: 1920, height: 1080 }
+        });
+
+        const page = await context.newPage();
 
         // Navegar para a página oficial de tendências
         await page.goto('https://tendencias.mercadolivre.com.br/');
@@ -62,13 +67,18 @@ app.get('/api/products', async (req, res) => {
             args: [
                 '--no-sandbox',
                 '--disable-setuid-sandbox',
-                '--disable-dev-shm-usage'
+                '--disable-dev-shm-usage',
+                '--disable-blink-features=AutomationControlled' // Flag Mágica: Esconde que é automação
             ]
         });
-        const page = await browser.newPage();
 
-        // Vamos mascarar o robô fingindo ser um usuário comum
-        await page.setExtraHTTPHeaders({ 'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36' });
+        // Criamos um contexto blindado imitando um humano real no Windows
+        const context = await browser.newContext({
+            userAgent: 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
+            viewport: { width: 1920, height: 1080 }
+        });
+
+        const page = await context.newPage();
 
         const searchQuery = encodeURIComponent(keyword);
         console.log(`[Scraper] Iniciando busca aprofundada para o nicho: ${keyword}`);
