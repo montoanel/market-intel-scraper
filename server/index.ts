@@ -136,8 +136,11 @@ app.get('/api/products', async (req, res) => {
 
         console.log(`[Scraper] Sucesso! ${products.length} produtos encontrados.`);
 
-        await browser.close();
-        res.json(products);
+        const uniqueProducts = products.filter((product, index, self) =>
+            index === self.findIndex((p) => p.productUrl === product.productUrl)
+        );
+
+        res.json(uniqueProducts);
     } catch (error) {
         console.error('Erro no Playwright ao buscar produtos:', error);
         res.status(500).json({ error: 'Failed to scrape products' });

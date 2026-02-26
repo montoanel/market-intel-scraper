@@ -30,12 +30,17 @@ export function useMarketIntel() {
     }, []);
 
     const loadProducts = useCallback(async (keyword: string) => {
+        setProducts([]); // Passo 2: Zera imediatamente ao iniciar nova busca
         setIsLoadingProducts(true);
         setError(null);
 
         try {
-            const results = await mercadoLivreService.fetchProductsByKeyword(keyword);
-            setProducts(results);
+            const data = await mercadoLivreService.fetchProductsByKeyword(keyword);
+
+            // Filtra novamente no front por segurança (utilizando productUrl que é o equivalente ao link)
+            const cleanData = Array.from(new Map(data.map(item => [item.productUrl, item])).values());
+
+            setProducts(cleanData);
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);
