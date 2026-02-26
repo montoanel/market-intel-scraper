@@ -37,10 +37,15 @@ export function useMarketIntel() {
         try {
             const data = await mercadoLivreService.fetchProductsByKeyword(keyword);
 
-            // Filtra novamente no front por segurança (utilizando productUrl que é o equivalente ao link)
-            const cleanData = Array.from(new Map(data.map(item => [item.productUrl, item])).values());
+            // Mágica: Remove duplicatas baseadas no link único do produto
+            const seenLinks = new Set<string>();
+            const uniqueData = data.filter(item => {
+                if (seenLinks.has(item.productUrl)) return false;
+                seenLinks.add(item.productUrl);
+                return true;
+            });
 
-            setProducts(cleanData);
+            setProducts(uniqueData);
         } catch (err) {
             if (err instanceof Error) {
                 setError(err.message);
